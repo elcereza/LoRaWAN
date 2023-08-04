@@ -1,6 +1,7 @@
 #ifndef LoRaWAN_Radioenge_h
 #define LoRaWAN_Radioenge_h
 
+#include "arduino.h"
 #include "Stream.h"
 
 #define _ATZ_               0
@@ -62,506 +63,165 @@
 #define BUFFER_SIZE   256
 
 class LoRaWAN_Radioenge{
-  private:
-    Stream* SerialLoRaWAN;
+private:
+  Stream* SerialLoRaWAN;
 
-    bool feedback = false;
-    String _DADDR,
-           _APPKEY,
-           _APPSKEY,
-           _NWKSKEY,
-           _APPEUI,
-           _DEUI;
+  bool feedback = false;
+  String _DADDR,
+         _APPKEY,
+         _APPSKEY,
+         _NWKSKEY,
+         _APPEUI,
+         _DEUI;
 
-    String AT_CMD[39] = {
-          "ATZ",
-          "DADDR",
-          "APPKEY",
-          "APPSKEY",
-          "NWKSKEY",
-          "APPEUI",
-          "ADR",
-          "DR",
-          "DCS",
-          "PNM",
-          "RX2FQ",
-          "RX2DR",
-          "RX1DL",
-          "RX2DL",
-          "JN1DL",
-          "JN2DL",
-          "NJM",
-          "NWKID",
-          "CLASS",
-          "JOIN",
-          "NJS",
-          "SENDB",
-          "SEND",
-          "VER",
-          "CFM",
-          "SNR",
-          "RSSI",
-          "BAT",
-          "BAUDRATE",
-          "NBTRIALS",
-          "KEEPALIVE",
-          "TXCFM",
-          "CHMASK",
-          "ADC",
-          "GPIOC",
-          "WPIN",
-          "RPIN",
-          "AJOIN",
-          "DEUI"
-    };
+  String AT_CMD[39] = {
+        "ATZ",
+        "DADDR",
+        "APPKEY",
+        "APPSKEY",
+        "NWKSKEY",
+        "APPEUI",
+        "ADR",
+        "DR",
+        "DCS",
+        "PNM",
+        "RX2FQ",
+        "RX2DR",
+        "RX1DL",
+        "RX2DL",
+        "JN1DL",
+        "JN2DL",
+        "NJM",
+        "NWKID",
+        "CLASS",
+        "JOIN",
+        "NJS",
+        "SENDB",
+        "SEND",
+        "VER",
+        "CFM",
+        "SNR",
+        "RSSI",
+        "BAT",
+        "BAUDRATE",
+        "NBTRIALS",
+        "KEEPALIVE",
+        "TXCFM",
+        "CHMASK",
+        "ADC",
+        "GPIOC",
+        "WPIN",
+        "RPIN",
+        "AJOIN",
+        "DEUI"
+  };
 
-    char g_payload[BUFFER_SIZE];
-    uint8_t array[BUFFER_SIZE];
-    String* payloads = new String[5];  
+  char g_payload[BUFFER_SIZE];
+  uint8_t array[BUFFER_SIZE];
+  String payloads[5];  
 
-    String feedbackSerial(String val, bool exception = false){
-      String buff = "";
-      uint8_t count = 8;
-      
-      SerialLoRaWAN->println(val);
-      if(feedback)
-        Serial.println("TX: " + val);
+  String feedbackSerial(String val, bool exception = false);
 
-      while(true){
-        if(SerialLoRaWAN->available() > 0){
-          buff = SerialLoRaWAN->readString();
+  String commandAT(uint8_t cmd, String val = "", bool exception = false);
 
-          if(feedback)
-            Serial.println("RX: " + buff);
-          
-          buff.replace("\n", "");
-          buff.replace("\r", "");
-      
-          if(!exception){
-            if(buff.indexOf("ERRO") > 0)
-              return "";
-            break;
-          }
-          else{         
-            if(buff.indexOf("ERRO") > 0 && count > 0)
-              count -= 1;
-            else if(count <= 0)
-              break;
-            else if(buff == "AT_JOIN_OK" || buff == "AT_ALREADY_JOINED")
-              break;
-          }
-        }
-      }
-      return buff;
-    }
+  String bool_to_intString(bool val);
 
-    String commandAT(uint8_t cmd, String val = "", bool exception = false){
-      String AT = "AT+";
-      
-      if(!exception && val == "")
-        AT = AT + AT_CMD[cmd] + "=?";
-      else if(exception)
-        AT = AT + AT_CMD[cmd];
-      else
-        AT = AT + AT_CMD[cmd] + "=" + val;
-
-      delay(50);
-      return feedbackSerial(AT, exception);
-    }
-
-    String bool_to_intString(bool val){
-      if(val)
-        return "1";
-      return "0";
-    }
-
-    void deserializeAT(uint8_t cmd){
-      String val_buff = commandAT(cmd);
-
-      char val_char[val_buff.length()];
-      val_buff.toCharArray(val_char, val_buff.length());
-        
-      uint8_t count = 0;  
-      for(uint8_t i = 0; i < val_buff.length(); ++i){
-        if(val_char[i] != ':')
-          payloads[count] += val_char[i];
-        else
-          ++count;
-      }
-    }  
-    
-    String separator(String val){
-      uint8_t val_size = val.length();
-      char val_char[val_size];
-      val.toCharArray(val_char, val_size + 1);
-      
-      if(val_size % 2 == 0 && val.indexOf(":") < 1){
-        val = "";
-        uint8_t count = 0;
-        for(uint8_t i = 0; i < val_size; ++i){
-          
-          val += val_char[i];
-          ++count;
-          if(count >= 2 && i + 1 < val_size){
-            val += ":";
-            count = 0;       
-          }
-        }
-      }
-      return val;
-    } 
-
-    uint16_t GPIO(uint8_t cmd, uint8_t pin, uint8_t val = 2){
-      String buff = "";
-      
-      if(val != 2)
-        buff = commandAT(cmd, String(pin) + ":" + String(val));
-      else
-        buff = commandAT(cmd, String(pin));        
-      buff.remove(0, 2);   
-      buff.replace("AT_OK", "");
-      buff.replace("AT_ERROR", String(0xFFFF));
-      return (uint16_t)buff.toInt();
-    }
-
-  public:
-    uint8_t port = 1, confirmado = 0, retries = 0;
-    int periodicidade = 0;
+  void deserializeAT(uint8_t cmd);
   
-    LoRaWAN_Radioenge(Stream* _SerialLoRaWAN){
-      SerialLoRaWAN = _SerialLoRaWAN;
-    }
+  String separator(String val);
 
-    void printParameters(){
-      String version = VER();
-      
-      Serial.println("---------------------------------------------------");
-      Serial.println("                  LoRaWAN Radioenge\n");
-      Serial.println(" Version        = " + version);
-      Serial.println(" DevEui         = " + _DEUI);
-      Serial.println(" DevAddr        = " + _DADDR);
-      Serial.println(" AppKey         = " + _APPKEY);
-      Serial.println(" AppSKey        = " + _APPSKEY);
-      Serial.println(" NwkSKey        = " + _NWKSKEY);
-      Serial.println(" AppEui/JoinEui = " + _APPEUI + "\n");
-      Serial.println("                    elcereza.com");
-      Serial.println("--------------------------------------------------\n");
-    }
+  uint16_t GPIO(uint8_t cmd, uint8_t pin, uint8_t val = 2);
 
-    void begin(bool _feedback = false){
-      feedback = _feedback;      
-      
-      DEUI();
-      DADDR();
-      APPKEY();
-      APPSKEY();
-      NWKSKEY();
-      APPEUI();
-    }
+public:
+  uint8_t port = 1, confirmado = 0, retries = 0;
+  int periodicidade = 0;
 
-    String DADDR(String val = ""){
-      if(val != "") commandAT(_DADDR_, separator(val));
-      _DADDR = commandAT(_DADDR_);
-      return _DADDR;
-    }
+  LoRaWAN_Radioenge(Stream* _SerialLoRaWAN);
 
-    String APPKEY(String val = ""){
-      if(val != "") commandAT(_APPKEY_, separator(val));
-      _APPKEY = commandAT(_APPKEY_);
-      return _APPKEY;
-    }
+  void printParameters();
 
-    String APPSKEY(String val = ""){
-      if(val != "") commandAT(_APPSKEY_, separator(val));
-      _APPSKEY = commandAT(_APPSKEY_);
-      return _APPSKEY;
-    }
+  void begin(bool _feedback = false);
 
-    String NWKSKEY(String val = ""){
-      if(val != "") commandAT(_NWKSKEY_, separator(val));
-      _NWKSKEY = commandAT(_NWKSKEY_);
-      return _NWKSKEY;
-    }
+  String DADDR(String val = "");
 
-    String APPEUI(String val = ""){
-      if(val != "") commandAT(_APPEUI_, separator(val));
-      _APPEUI = commandAT(_APPEUI_);
-      return _APPEUI;
-    }
+  String APPKEY(String val = "");
 
-    String DEUI(){
-      _DEUI = commandAT(_DEUI_);
-      return _DEUI;
-    }
+  String APPSKEY(String val = "");
 
-    String CHMASK(String val = ""){
-      if(val != "") commandAT(_CHMASK_, separator(val));
-      return commandAT(_CHMASK_);
-    }
+  String NWKSKEY(String val = "");
 
-    void ATZ(){
-      feedbackSerial("ATZ");      
-    }    
+  String APPEUI(String val = "");
 
-    bool ADR(bool val = NULL){
-      if(val != NULL) commandAT(_ADR_, bool_to_intString(val));
-      return commandAT(_ADR_).toInt();
-    }
+  String DEUI();
 
-    uint8_t DR(uint8_t val = 14){
-      if(val < 14) (uint8_t)commandAT(_DR_, String(val)).toInt();
-      return (uint8_t)commandAT(_DR_).toInt();
-    }
+  String CHMASK(String val = "");
 
-    bool DCS(bool val = NULL){
-      if(val != NULL) commandAT(_DCS_, bool_to_intString(val));
-      return commandAT(_DCS_).toInt();
-    }
+  void ATZ();
 
-    bool PNM(bool val = NULL){
-      if(val != NULL) commandAT(_PNM_, bool_to_intString(val));
-      return commandAT(_PNM_).toInt();
-    }
+  bool ADR(bool val = NULL);
 
-    uint32_t RX2FQ(uint32_t val = NULL){
-      if(val != NULL) commandAT(_RX2FQ_, String(val));
-      return (uint32_t)commandAT(_RX2FQ_).toInt();
-    }
+  uint8_t DR(uint8_t val = 14);
 
-    uint16_t RX2DR(uint16_t val = NULL){
-      if(val != NULL) commandAT(_RX2DR_, String(val));
-      return (uint16_t)commandAT(_RX2DR_).toInt();
-    }
+  bool DCS(bool val = NULL);
 
-    uint16_t RX1DL(uint16_t val = NULL){
-      if(val != NULL) commandAT(_RX1DL_, String(val));
-      return (uint16_t)commandAT(_RX1DL_).toInt();
-    }
+  bool PNM(bool val = NULL);
 
-    uint16_t RX2DL(uint16_t val = NULL){
-      if(val != NULL) commandAT(_RX2DL_, String(val));
-      return (uint16_t)commandAT(_RX2DL_).toInt();
-    }
+  uint32_t RX2FQ(uint32_t val = NULL);
 
-    uint16_t JN1DL(uint16_t val = NULL){
-      if(val != NULL) commandAT(_JN1DL_, String(val));
-      return (uint16_t)commandAT(_JN1DL_).toInt();
-    }
+  uint16_t RX2DR(uint16_t val = NULL);
 
-    uint16_t JN2DL(uint16_t val = NULL){
-      if(val != NULL) commandAT(_JN2DL_, String(val));
-      return (uint16_t)commandAT(_JN2DL_).toInt();
-    }
+  uint16_t RX1DL(uint16_t val = NULL);
 
-    bool NJM(bool val = NULL){
-      if(val != NULL) commandAT(_NJM_, bool_to_intString(val));
-      return commandAT(_NJM_).toInt();
-    }
+  uint16_t RX2DL(uint16_t val = NULL);
 
-    String NWKID(){
-      return commandAT(_NWKID_);
-    }
+  uint16_t JN1DL(uint16_t val = NULL);
 
-    bool CLASS(uint8_t val = 2){
-      if(val == 0) commandAT(_CLASS_, "A");
-      else if(val == 1) commandAT(_CLASS_, "C");
-      if(commandAT(_CLASS_) == "C") return true;
-      return false;
-    }
+  uint16_t JN2DL(uint16_t val = NULL);
 
-    bool JOIN(){
-      if(commandAT(_JOIN_, "", true) == "AT_JOIN_OK")
-        return true;
-      return false;
-    }
+  bool NJM(bool val = NULL);
 
-    bool AJOIN(bool val = NULL){
-      if(val != NULL) commandAT(_AJOIN_, bool_to_intString(val));
-      return commandAT(_AJOIN_).toInt();
-    }
+  String NWKID();
 
-    bool NJS(){
-      return commandAT(_NJS_).toInt();
-    }
+  bool CLASS(uint8_t val = 2);
 
-    String VER(){
-      return commandAT(_VER_);
-    }    
+  bool JOIN();
 
-    bool CFM(bool val = NULL){
-      if(val != NULL) commandAT(_CFM_, bool_to_intString(val));
-      return commandAT(_CFM_).toInt();
-    }
+  bool AJOIN(bool val = NULL);
 
-    uint8_t SNR(){
-      return (uint8_t)commandAT(_SNR_).toInt();
-    }
+  bool NJS();
 
-    int RSSI(){
-      return commandAT(_RSSI_).toInt();
-    }
+  String VER();
 
-    float BAT(){
-      return commandAT(_BAT_).toInt() * 100 / 253;
-    }
+  bool CFM(bool val = NULL);
 
-    uint16_t BAUDRATE(uint16_t val = NULL){
-      if(val != NULL) commandAT(_BAUDRATE_, String(val));
-      return commandAT(_BAUDRATE_).toInt();
-    }
+  uint8_t SNR();
 
-    uint8_t NBTRIALS(uint8_t val = NULL){
-      if(val != NULL) commandAT(_NBTRIALS_, String(val));
-      return commandAT(_NBTRIALS_).toInt();
-    }
+  int RSSI();
 
-    bool TXCFM(uint8_t _port, bool _confirmado, uint8_t _retries, char* payload){
-      uint8_t index = 0;
-      
-      memset(array, 0, BUFFER_SIZE);
-      
-      strcpy((char*)&array[index], payload);
-      index += strlen(payload);
-      
-      if(index > BUFFER_SIZE)
-        return false;
-      
-      String _payload = "";
-      for(int i = 0; i < index; ++i)
-        _payload += array[index];
-      
-      commandAT(_SENDB_, String(_port) + ":" + String(_retries) + ":" + bool_to_intString(_confirmado) + ":" + String(_payload));
-      return true;
-    }
+  float BAT();
 
-    bool KEEPALIVE(bool habilitado = NULL, uint8_t _port = NULL, uint8_t _confirmado = NULL, int _periodicidade = NULL){
-      if(habilitado != NULL && _port != NULL && _confirmado != NULL, _periodicidade != NULL)
-        commandAT(_KEEPALIVE_, bool_to_intString(habilitado) + ":" + String(_port) + ":" + String(_confirmado) + ":" + String(_periodicidade));      
+  uint16_t BAUDRATE(uint16_t val = NULL);
 
-      deserializeAT(_KEEPALIVE_);
+  uint8_t NBTRIALS(uint8_t val = NULL);
 
-      port          = (uint8_t)payloads[1].toInt();
-      confirmado    = (uint8_t)payloads[2].toInt();
-      periodicidade = payloads[3].toInt();
-      
-      return payloads[0].toInt();
-    }
+  bool TXCFM(uint8_t _port, bool _confirmado, uint8_t _retries, char* payload);
 
-    bool pinMode(uint8_t pin, uint8_t modo){
-      uint8_t pull = 0; 
-      
-      if(pin > 9 || modo > 10) return false;
-      else if((modo == OUTPUT_FA_PUSHPULL || modo == OUTPUT_FA_OPENDRAIN) && pin != 0 && pin != 1) return false;     
-      else if(modo == INPUT_ADC && pin != 0 && pin != 1 && pin != 7 && pin != 8) return false; 
-      else if((modo == INTERRUPT_RISING || modo == INTERRUPT_FALLING || modo == INTERRUPT_CHANGE) && pin == 0 && pin == 3 && pin == 7 && pin == 8) return false;
-            
-      if(modo == INPUT)
-        modo = 0;
-      else if(modo == OUTPUT)
-        modo = 1;
+  bool KEEPALIVE(bool habilitado = NULL, uint8_t _port = NULL, uint8_t _confirmado = NULL, int _periodicidade = NULL);
 
-      if(modo == INPUT_PULLUP){
-        modo = 0;        
-        pull = 1;        
-      }
-      else if(pull == INPUT_PULLDOWN){
-        modo = 0;
-        pull = 2;
-      }
-/*
-      deserializeAT(_GPIOC_);
+  bool pinMode(uint8_t pin, uint8_t modo);
 
-      uint8_t _modo = (uint8_t)payloads[1].toInt();
-      uint8_t _pull = (uint8_t)payloads[2].toInt();
-      
-      if(_modo != modo || _pull != pull)
-*/  
-      commandAT(_GPIOC_, String(pin) + ":" + String(modo) + ":" + String(pull));
+  uint8_t digitalRead(uint8_t pin);
 
-      return true;
-    }
+  uint8_t digitalWrite(uint8_t pin, uint8_t val);
+  
+  uint16_t analogRead(uint8_t pin);
 
-    uint8_t digitalRead(uint8_t pin){
-      return (uint8_t)GPIO(_RPIN_, pin);   
-    }
+  void ConfigNetwork(uint8_t njm = NULL, uint8_t net = NULL, String appkey = "", String appeui = "", String nwkskey = "", String daddr = "");
 
-    uint8_t digitalWrite(uint8_t pin, uint8_t val){
-      return (uint8_t)GPIO(_WPIN_, pin, val);
-    }
-    
-    uint16_t analogRead(uint8_t pin){
-      return GPIO(_ADC_, pin); 
-    }
+  bool JoinNetwork(uint8_t njm = NULL, uint8_t net = NULL,  bool autoconfig = true, bool automatic = NULL, String appkey = "", String appeui = "", String nwkskey = "", String daddr = "");
 
-    void ConfigNetwork(uint8_t njm = NULL, uint8_t net = NULL, String appkey = "", String appeui = "", String nwkskey = "", String daddr = ""){
-      if(NJM() != njm) NJM(njm);
-      if(njm == OTAA && CLASS()) CLASS(false);
-
-      String buff_appkey = appkey;   buff_appkey.replace(":", "");
-      String buff_appeui = appeui;   buff_appeui.replace(":", "");
-      String buff_nwkskey = nwkskey; buff_nwkskey.replace(":", "");
-      String buff_daddr  = daddr;    buff_daddr.replace(":", "");    
-      
-      if(njm == ABP) if(_APPSKEY != buff_appkey && buff_appkey != "") APPSKEY(appkey);
-      else if(_APPKEY != buff_appkey && buff_appkey != "") APPKEY(appkey);
-      if(_APPEUI != buff_appeui && buff_appeui != "") APPEUI(appeui);
-      if(_NWKSKEY != buff_nwkskey && buff_nwkskey != "") NWKSKEY(nwkskey);
-      if(_DADDR != buff_daddr && buff_daddr != "") DADDR(daddr);
-
-      uint16_t buff_uint16;
-      buff_uint16 = RX1DL(); if((CS == net || TTN == net) && buff_uint16 != 1000) RX1DL(1000); else if(EN == net && buff_uint16 != 5000) RX1DL(5000);
-      buff_uint16 = RX2DL(); if((CS == net || TTN == net) && buff_uint16 != 2000) RX2DL(2000); else if(EN == net && buff_uint16 != 6000) RX2DL(6000);
-      buff_uint16 = JN1DL(); if((CS == net || TTN == net) && buff_uint16 != 5000) JN1DL(5000); else if(EN == net && buff_uint16 != 5000) JN1DL(5000);
-      buff_uint16 = JN2DL(); if((CS == net || TTN == net) && buff_uint16 != 6000) JN2DL(6000); else if(EN == net && buff_uint16 != 6000) JN2DL(5000);
-
-      String buff_string = CHMASK();
-      if(net == EN && buff_string != "00ff00000000000000010000") CHMASK("00ff:0000:0000:0000:0001:0000");
-      else if((CS == net || TTN == net) && buff_string != "ff0000000000000000020000") CHMASK("ff00:0000:0000:0000:0002:0000");
-    }
-
-    bool JoinNetwork(uint8_t njm = NULL, uint8_t net = NULL,  bool autoconfig = true, bool automatic = NULL, String appkey = "", String appeui = "", String nwkskey = "", String daddr = ""){
-      if(autoconfig)
-        ConfigNetwork(njm, net, appkey, appeui, nwkskey, daddr);
-
-      if(automatic != AJOIN()) AJOIN(automatic);
-
-      if(!NJS())
-        return JOIN();
-      else 
-        return true;
-      return false;
-    }
-
-    bool SendString(char* string, uint8_t _port = 1)
-    {
-      if(string == NULL || strnlen(string, BUFFER_SIZE) >= BUFFER_SIZE)
-        return false;
-      
-      sprintf(g_payload, "%d:%s\0", _port, string);
-      commandAT(_SEND_, g_payload);
-      return true;
-    }
-
-    bool SendRaw(char* payload, uint8_t _port = 1)
-    {
-      uint8_t index = 0;
-      
-      memset(array, 0, BUFFER_SIZE);
-      
-      strcpy((char*)&array[index], payload);
-      index += strlen(payload);
-      
-      if(index > BUFFER_SIZE)
-        return false;
-      
-      String _payload = "";
-      for(int i = 0; i < index; ++i)
-        _payload += array[index];
-
-      String val = String(_port) + ":" + String(_payload);
-      
-      commandAT(_SENDB_, val);
-      return true;
-    }
+  bool SendString(char* string, uint8_t _port = 1);
+  
+  bool SendRaw(char* payload, uint8_t _port = 1);
 };
 #endif
