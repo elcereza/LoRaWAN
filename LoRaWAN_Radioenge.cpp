@@ -7,6 +7,8 @@ String LoRaWAN_Radioenge::feedbackSerial(String val, bool exception){
   SerialLoRaWAN->println(val);
   if(feedback)
     Serial.println("TX: " + val);
+  
+  uint16_t timerout_count = 0;
   while(true){
     if(SerialLoRaWAN->available() > 0){
       buff = SerialLoRaWAN->readString();
@@ -29,6 +31,14 @@ String LoRaWAN_Radioenge::feedbackSerial(String val, bool exception){
         else if(buff == "AT_JOIN_OK" || buff == "AT_ALREADY_JOINED")
           break;
       }
+    }
+    else if(!exception){
+        if(timerout_count < 1000){
+          ++timerout_count;
+          delay(1);
+        }
+        else
+          break;
     }
   }
   return buff;
