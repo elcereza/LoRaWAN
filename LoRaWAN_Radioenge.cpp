@@ -120,16 +120,16 @@ void LoRaWAN_Radioenge::printParameters(){
   String version = VER();
   
   Serial.println("---------------------------------------------------");
-  Serial.println("                  LoRaWAN Radioenge\n");
+  Serial.println("                  LoRaWAN Radioenge");
   Serial.println(" Version        = " + version);
   Serial.println(" DevEui         = " + _DEUI);
   Serial.println(" DevAddr        = " + _DADDR);
   Serial.println(" AppKey         = " + _APPKEY);
   Serial.println(" AppSKey        = " + _APPSKEY);
   Serial.println(" NwkSKey        = " + _NWKSKEY);
-  Serial.println(" AppEui/JoinEui = " + _APPEUI + "\n");
+  Serial.println(" AppEui/JoinEui = " + _APPEUI);
   Serial.println("                    elcereza.com");
-  Serial.println("--------------------------------------------------\n");
+  Serial.println("---------------------------------------------------");
 }
 
 void LoRaWAN_Radioenge::begin(bool _feedback){
