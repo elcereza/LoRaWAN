@@ -4,7 +4,9 @@
 Esta biblioteca conta com todas as funcionalidades descrita no datasheet como também tem algumas funcionalidades a mais a fim de facilitar o uso do módulo com microcontroladores compativeis com Arduino IDE.
 
 <h3>Compatibilidade</h3>
-  A biblioteca é compatível com diversos microcontroladores que tem a capacidade de rodar a biblioteca SoftwareSerial ou tem uma serial a mais para se comunicar com o módulo, porém é interessante se atentar aos níveis de tensão para diferentes métodos de conexão com o network server. 
+  A biblioteca é compatível com diversos microcontroladores que tem a capacidade de rodar a biblioteca SoftwareSerial ou tem uma serial a mais para se comunicar com o módulo, porém é interessante se atentar aos níveis de tensão para diferentes métodos de conexão com o network server.
+<h4>Outras versões</h4>
+- [Biblioteca para STM32](https://github.com/elcereza/LoRaWAN_Radioenge_STM32) 
   
  <h3>Sobre o LoRaWAN</h3>
   O LoRaWAN nada mais é do que uma camada adicional a mddulação LoRa com o intuito de ampliar a área de alcance e manter o baixo consumo de energia, porém com uma rede muito bem estruturada de modo que os end devices possam enviar a qualquer momento e o cocentrador enviar para o network server. 
