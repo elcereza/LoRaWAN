@@ -60,6 +60,21 @@
 #define INTERRUPT_FALLING   8
 #define INTERRUPT_CHANGE    10
 
+#ifndef INPUT
+#define INPUT                0
+#endif
+#ifndef INPUT_PULLUP
+#define INPUT_PULLUP         7
+#endif
+
+#ifdef  INPUT_PULLDOWN_16
+#define INPUT_PULLDOWN       INPUT_PULLDOWN_16
+#endif
+
+#ifndef INPUT_PULLDOWN
+#define INPUT_PULLDOWN       8
+#endif
+
 #define BUFFER_SIZE   256
 
 class LoRaWAN_Radioenge{
@@ -158,27 +173,27 @@ public:
 
   void ATZ();
 
-  bool ADR(bool val = NULL);
+  bool ADR(bool val = 0xFF);
 
   uint8_t DR(uint8_t val = 14);
 
-  bool DCS(bool val = NULL);
+  bool DCS(bool val = 0xFF);
 
-  bool PNM(bool val = NULL);
+  bool PNM(bool val = 0xFF);
 
-  uint32_t RX2FQ(uint32_t val = NULL);
+  uint32_t RX2FQ(uint32_t val = 0xFF);
 
-  uint16_t RX2DR(uint16_t val = NULL);
+  uint16_t RX2DR(uint16_t val = 0xFF);
 
-  uint16_t RX1DL(uint16_t val = NULL);
+  uint16_t RX1DL(uint16_t val = 0xFF);
 
-  uint16_t RX2DL(uint16_t val = NULL);
+  uint16_t RX2DL(uint16_t val = 0xFF);
 
-  uint16_t JN1DL(uint16_t val = NULL);
+  uint16_t JN1DL(uint16_t val = 0xFF);
 
-  uint16_t JN2DL(uint16_t val = NULL);
+  uint16_t JN2DL(uint16_t val = 0xFF);
 
-  bool NJM(bool val = NULL);
+  bool NJM(bool val = 0xFF);
 
   String NWKID();
 
@@ -186,13 +201,13 @@ public:
 
   bool JOIN();
 
-  bool AJOIN(bool val = NULL);
+  bool AJOIN(bool val = 0xFF);
 
   bool NJS();
 
   String VER();
 
-  bool CFM(bool val = NULL);
+  bool CFM(bool val = 0xFF);
 
   uint8_t SNR();
 
@@ -200,13 +215,13 @@ public:
 
   float BAT();
 
-  uint16_t BAUDRATE(uint16_t val = NULL);
+  uint16_t BAUDRATE(uint16_t val = 0xFF);
 
-  uint8_t NBTRIALS(uint8_t val = NULL);
+  uint8_t NBTRIALS(uint8_t val = 0xFF);
 
   bool TXCFM(uint8_t _port, bool _confirmado, uint8_t _retries, char* payload);
 
-  bool KEEPALIVE(bool habilitado = NULL, uint8_t _port = NULL, uint8_t _confirmado = NULL, int _periodicidade = NULL);
+  bool KEEPALIVE(bool habilitado = 0xFF, uint8_t _port = 0xFF, uint8_t _confirmado = 0xFF, int _periodicidade = 0xFF);
 
   bool pinMode(uint8_t pin, uint8_t modo);
 
@@ -216,9 +231,9 @@ public:
   
   uint16_t analogRead(uint8_t pin);
 
-  void ConfigNetwork(uint8_t njm = NULL, uint8_t net = NULL, String appkey = "", String appeui = "", String nwkskey = "", String daddr = "");
+  void ConfigNetwork(uint8_t njm = 0xFF, uint8_t net = 0xFF, String appkey = "", String appeui = "", String nwkskey = "", String daddr = "");
 
-  bool JoinNetwork(uint8_t njm = NULL, uint8_t net = NULL,  bool autoconfig = true, bool automatic = NULL, String appkey = "", String appeui = "", String nwkskey = "", String daddr = "");
+  bool JoinNetwork(uint8_t njm = 0xFF, uint8_t net = 0xFF,  bool autoconfig = true, bool automatic = 0xFF, String appkey = "", String appeui = "", String nwkskey = "", String daddr = "");
 
   bool SendString(char* string, uint8_t _port = 1);
   
