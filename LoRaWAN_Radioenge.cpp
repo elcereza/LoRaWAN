@@ -120,16 +120,16 @@ void LoRaWAN_Radioenge::printParameters(){
   String version = VER();
   
   Serial.println("---------------------------------------------------");
-  Serial.println("                  LoRaWAN Radioenge");
+  Serial.println("                  LoRaWAN Radioenge\n");
   Serial.println(" Version        = " + version);
   Serial.println(" DevEui         = " + _DEUI);
   Serial.println(" DevAddr        = " + _DADDR);
   Serial.println(" AppKey         = " + _APPKEY);
   Serial.println(" AppSKey        = " + _APPSKEY);
   Serial.println(" NwkSKey        = " + _NWKSKEY);
-  Serial.println(" AppEui/JoinEui = " + _APPEUI);
+  Serial.println(" AppEui/JoinEui = " + _APPEUI + "\n");
   Serial.println("                    elcereza.com");
-  Serial.println("---------------------------------------------------");
+  Serial.println("--------------------------------------------------\n");
 }
 
 void LoRaWAN_Radioenge::begin(bool _feedback){
@@ -188,7 +188,7 @@ void LoRaWAN_Radioenge::ATZ(){
 }   
 
 bool LoRaWAN_Radioenge::ADR(bool val){
-  if(val != NULL) commandAT(_ADR_, bool_to_intString(val));
+  if(val != 0xFF) commandAT(_ADR_, bool_to_intString(val));
   return commandAT(_ADR_).toInt();
 }
 
@@ -198,47 +198,47 @@ uint8_t LoRaWAN_Radioenge::DR(uint8_t val){
 }
 
 bool LoRaWAN_Radioenge::DCS(bool val){
-  if(val != NULL) commandAT(_DCS_, bool_to_intString(val));
+  if(val != 0xFF) commandAT(_DCS_, bool_to_intString(val));
   return commandAT(_DCS_).toInt();
 }
 
 bool LoRaWAN_Radioenge::PNM(bool val){
-  if(val != NULL) commandAT(_PNM_, bool_to_intString(val));
+  if(val != 0xFF) commandAT(_PNM_, bool_to_intString(val));
   return commandAT(_PNM_).toInt();
 }
 
 uint32_t LoRaWAN_Radioenge::RX2FQ(uint32_t val){
-  if(val != NULL) commandAT(_RX2FQ_, String(val));
+  if(val != 0xFF) commandAT(_RX2FQ_, String(val));
   return (uint32_t)commandAT(_RX2FQ_).toInt();
 }
 
 uint16_t LoRaWAN_Radioenge::RX2DR(uint16_t val){
-  if(val != NULL) commandAT(_RX2DR_, String(val));
+  if(val != 0xFF) commandAT(_RX2DR_, String(val));
   return (uint16_t)commandAT(_RX2DR_).toInt();
 }
 
 uint16_t LoRaWAN_Radioenge::RX1DL(uint16_t val){
-  if(val != NULL) commandAT(_RX1DL_, String(val));
+  if(val != 0xFF) commandAT(_RX1DL_, String(val));
   return (uint16_t)commandAT(_RX1DL_).toInt();
 }
 
 uint16_t LoRaWAN_Radioenge::RX2DL(uint16_t val){
-  if(val != NULL) commandAT(_RX2DL_, String(val));
+  if(val != 0xFF) commandAT(_RX2DL_, String(val));
   return (uint16_t)commandAT(_RX2DL_).toInt();
 }
 
 uint16_t LoRaWAN_Radioenge::JN1DL(uint16_t val){
-  if(val != NULL) commandAT(_JN1DL_, String(val));
+  if(val != 0xFF) commandAT(_JN1DL_, String(val));
   return (uint16_t)commandAT(_JN1DL_).toInt();
 }
 
 uint16_t LoRaWAN_Radioenge::JN2DL(uint16_t val){
-  if(val != NULL) commandAT(_JN2DL_, String(val));
+  if(val != 0xFF) commandAT(_JN2DL_, String(val));
   return (uint16_t)commandAT(_JN2DL_).toInt();
 }
 
 bool LoRaWAN_Radioenge::NJM(bool val){
-  if(val != NULL) commandAT(_NJM_, bool_to_intString(val));
+  if(val != 0xFF) commandAT(_NJM_, bool_to_intString(val));
   return commandAT(_NJM_).toInt();
 }
 
@@ -260,7 +260,7 @@ bool LoRaWAN_Radioenge::JOIN(){
 }
 
 bool LoRaWAN_Radioenge::AJOIN(bool val){
-  if(val != NULL) commandAT(_AJOIN_, bool_to_intString(val));
+  if(val != 0xFF) commandAT(_AJOIN_, bool_to_intString(val));
   return commandAT(_AJOIN_).toInt();
 }
 
@@ -273,7 +273,7 @@ String LoRaWAN_Radioenge::VER(){
 }
 
 bool LoRaWAN_Radioenge::CFM(bool val){
-  if(val != NULL) commandAT(_CFM_, bool_to_intString(val));
+  if(val != 0xFF) commandAT(_CFM_, bool_to_intString(val));
   return commandAT(_CFM_).toInt();
 }
 
@@ -290,12 +290,12 @@ float LoRaWAN_Radioenge::BAT(){
 }
 
 uint16_t LoRaWAN_Radioenge::BAUDRATE(uint16_t val){
-  if(val != NULL) commandAT(_BAUDRATE_, String(val));
+  if(val != 0xFF) commandAT(_BAUDRATE_, String(val));
   return commandAT(_BAUDRATE_).toInt();
 }
 
 uint8_t LoRaWAN_Radioenge::NBTRIALS(uint8_t val){
-  if(val != NULL) commandAT(_NBTRIALS_, String(val));
+  if(val != 0xFF) commandAT(_NBTRIALS_, String(val));
   return commandAT(_NBTRIALS_).toInt();
 }
 
@@ -319,7 +319,7 @@ bool LoRaWAN_Radioenge::TXCFM(uint8_t _port, bool _confirmado, uint8_t _retries,
 }
 
 bool LoRaWAN_Radioenge::KEEPALIVE(bool habilitado, uint8_t _port, uint8_t _confirmado, int _periodicidade){
-  if(habilitado != NULL && _port != NULL && _confirmado != NULL, _periodicidade != NULL)
+  if(habilitado != 0xFF && _port != 0xFF && _confirmado != 0xFF, _periodicidade != 0xFF)
     commandAT(_KEEPALIVE_, bool_to_intString(habilitado) + ":" + String(_port) + ":" + String(_confirmado) + ":" + String(_periodicidade));      
   deserializeAT(_KEEPALIVE_);
   port          = (uint8_t)payloads[1].toInt();
@@ -408,7 +408,7 @@ bool LoRaWAN_Radioenge::JoinNetwork(uint8_t njm, uint8_t net,  bool autoconfig, 
 
 bool LoRaWAN_Radioenge::SendString(char* string, uint8_t _port)
 {
-  if(string == NULL || strnlen(string, BUFFER_SIZE) >= BUFFER_SIZE)
+  if(string == "" || strnlen(string, BUFFER_SIZE) >= BUFFER_SIZE)
     return false;
   
   sprintf(g_payload, "%d:%s\0", _port, string);
