@@ -139,7 +139,7 @@ private:
 
   String commandAT(uint8_t cmd, String val = "", bool exception = false);
 
-  String bool_to_intString(bool val);
+  String bool_to_intString(uint8_t val);
 
   void deserializeAT(uint8_t cmd);
   
@@ -173,13 +173,13 @@ public:
 
   void ATZ();
 
-  bool ADR(bool val = 0xFF);
+  bool ADR(uint8_t val = 0xFF);
 
   uint8_t DR(uint8_t val = 14);
 
-  bool DCS(bool val = 0xFF);
+  bool DCS(uint8_t val = 0xFF);
 
-  bool PNM(bool val = 0xFF);
+  bool PNM(uint8_t val = 0xFF);
 
   uint32_t RX2FQ(uint32_t val = 0xFF);
 
@@ -193,7 +193,7 @@ public:
 
   uint16_t JN2DL(uint16_t val = 0xFF);
 
-  bool NJM(bool val = 0xFF);
+  bool NJM(uint8_t val = 0xFF);
 
   String NWKID();
 
@@ -201,13 +201,13 @@ public:
 
   bool JOIN();
 
-  bool AJOIN(bool val = 0xFF);
+  bool AJOIN(uint8_t val = 0xFF);
 
   bool NJS();
 
   String VER();
 
-  bool CFM(bool val = 0xFF);
+  bool CFM(uint8_t val = 0xFF);
 
   uint8_t SNR();
 
