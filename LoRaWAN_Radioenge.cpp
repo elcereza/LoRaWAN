@@ -57,7 +57,7 @@ String LoRaWAN_Radioenge::commandAT(uint8_t cmd, String val, bool exception){
   return feedbackSerial(AT, exception);
 }
 
-String LoRaWAN_Radioenge::bool_to_intString(bool val){
+String LoRaWAN_Radioenge::bool_to_intString(uint8_t val){
   if(val)
     return "1";
   return "0";
@@ -187,7 +187,7 @@ void LoRaWAN_Radioenge::ATZ(){
   feedbackSerial("ATZ");      
 }   
 
-bool LoRaWAN_Radioenge::ADR(bool val){
+bool LoRaWAN_Radioenge::ADR(uint8_t val){
   if(val != 0xFF) commandAT(_ADR_, bool_to_intString(val));
   return commandAT(_ADR_).toInt();
 }
@@ -197,12 +197,12 @@ uint8_t LoRaWAN_Radioenge::DR(uint8_t val){
   return (uint8_t)commandAT(_DR_).toInt();
 }
 
-bool LoRaWAN_Radioenge::DCS(bool val){
+bool LoRaWAN_Radioenge::DCS(uint8_t val){
   if(val != 0xFF) commandAT(_DCS_, bool_to_intString(val));
   return commandAT(_DCS_).toInt();
 }
 
-bool LoRaWAN_Radioenge::PNM(bool val){
+bool LoRaWAN_Radioenge::PNM(uint8_t val){
   if(val != 0xFF) commandAT(_PNM_, bool_to_intString(val));
   return commandAT(_PNM_).toInt();
 }
@@ -237,7 +237,7 @@ uint16_t LoRaWAN_Radioenge::JN2DL(uint16_t val){
   return (uint16_t)commandAT(_JN2DL_).toInt();
 }
 
-bool LoRaWAN_Radioenge::NJM(bool val){
+bool LoRaWAN_Radioenge::NJM(uint8_t val){
   if(val != 0xFF) commandAT(_NJM_, bool_to_intString(val));
   return commandAT(_NJM_).toInt();
 }
@@ -259,7 +259,7 @@ bool LoRaWAN_Radioenge::JOIN(){
   return false;
 }
 
-bool LoRaWAN_Radioenge::AJOIN(bool val){
+bool LoRaWAN_Radioenge::AJOIN(uint8_t val){
   if(val != 0xFF) commandAT(_AJOIN_, bool_to_intString(val));
   return commandAT(_AJOIN_).toInt();
 }
@@ -272,7 +272,7 @@ String LoRaWAN_Radioenge::VER(){
   return commandAT(_VER_);
 }
 
-bool LoRaWAN_Radioenge::CFM(bool val){
+bool LoRaWAN_Radioenge::CFM(uint8_t val){
   if(val != 0xFF) commandAT(_CFM_, bool_to_intString(val));
   return commandAT(_CFM_).toInt();
 }
